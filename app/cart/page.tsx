@@ -40,6 +40,12 @@ export default function CartPage() {
   const [state, setState] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
   const [codConfig, setCodConfig] = useState<{ extra_charge: number }>({ extra_charge: 0 });
+  
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; type: string; value: number } | null>(null);
+  const [couponError, setCouponError] = useState('');
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   useEffect(() => {
     // Fetch COD config
@@ -110,9 +116,53 @@ export default function CartPage() {
     saveCart(cart.map(item => item.id === id ? { ...item, quantity: qty } : item));
   };
 
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setApplyingCoupon(true);
+    setCouponError('');
+    try {
+      const { data, error } = await supabase!
+        .from('coupons')
+        .select('*')
+        .eq('code', couponCode.trim().toUpperCase())
+        .eq('is_active', true)
+        .single();
+        
+      if (error || !data) {
+        setCouponError('Invalid or expired coupon code.');
+        setAppliedCoupon(null);
+      } else {
+        if (data.expiry_date && new Date(data.expiry_date) < new Date()) {
+          setCouponError('This coupon has expired.');
+          setAppliedCoupon(null);
+        } else if (subtotal < data.min_order_value) {
+          setCouponError(`Minimum order value of ₹${data.min_order_value} required.`);
+          setAppliedCoupon(null);
+        } else {
+          setAppliedCoupon({ code: data.code, type: data.discount_type, value: data.discount_value });
+          setCouponCode('');
+        }
+      }
+    } catch (e) {
+      setCouponError('Error verifying coupon.');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError('');
+  };
+
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const codExtraCharge = paymentMethod === 'cod' ? codConfig.extra_charge : 0;
-  const totalAmount = subtotal + codExtraCharge;
+  
+  const discountAmount = appliedCoupon 
+    ? (appliedCoupon.type === 'percentage' ? (subtotal * appliedCoupon.value) / 100 : appliedCoupon.value)
+    : 0;
+    
+  const totalAmount = Math.max(0, subtotal - discountAmount) + codExtraCharge;
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -424,6 +474,49 @@ export default function CartPage() {
                     <span>Shipping</span>
                     <span className="text-green-600 uppercase text-xs font-bold tracking-widest">Complimentary</span>
                   </div>
+                  
+                  {/* Coupon UI */}
+                  {activeStep === 1 && (
+                    <div className="py-4 border-y border-gold-100/50 my-4">
+                      {appliedCoupon ? (
+                        <div className="flex justify-between items-center bg-green-50 px-4 py-3 rounded-xl border border-green-200">
+                           <div className="flex flex-col">
+                             <span className="text-green-700 font-bold uppercase text-xs tracking-wider">{appliedCoupon.code} Applied</span>
+                             <span className="text-green-600 text-[10px]">-₹{discountAmount.toFixed(2)}</span>
+                           </div>
+                           <button onClick={removeCoupon} className="text-red-500 hover:text-red-700 text-xs uppercase font-bold tracking-widest">Remove</button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2">
+                            <input 
+                              type="text" 
+                              placeholder="Have a coupon code?" 
+                              value={couponCode}
+                              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                              className="flex-1 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-gold-500 uppercase"
+                            />
+                            <button 
+                              onClick={applyCoupon}
+                              disabled={applyingCoupon || !couponCode.trim()}
+                              className="bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gold-600 disabled:opacity-50 transition-colors"
+                            >
+                              {applyingCoupon ? '...' : 'Apply'}
+                            </button>
+                          </div>
+                          {couponError && <p className="text-red-500 text-xs font-medium pl-1">{couponError}</p>}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount ({appliedCoupon.code})</span>
+                      <span>-₹{discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+
                   {paymentMethod === 'cod' && codConfig.extra_charge > 0 && (
                     <div className="flex justify-between animate-in fade-in slide-in-from-right-2">
                        <span className="flex items-center gap-1.5">

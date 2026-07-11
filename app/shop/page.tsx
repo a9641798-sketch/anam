@@ -12,6 +12,7 @@ type Product = {
   price: number;
   stock: number;
   category_id: string;
+  is_best_seller?: boolean;
   product_images?: { image_url: string; is_cover: boolean }[];
 };
 type Category = { id: string; name: string; slug?: string };
@@ -25,6 +26,7 @@ export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [sort, setSort] = useState('newest');
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
 
   // Load cart from localStorage
   useEffect(() => {
@@ -32,12 +34,15 @@ export default function ShopPage() {
       const saved = localStorage.getItem('cart');
       if (saved) setCart(JSON.parse(saved));
     } catch {}
+    setCartLoaded(true);
   }, []);
 
   // Save cart to localStorage
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
+    if (cartLoaded) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+  }, [cart, cartLoaded]);
 
   useEffect(() => {
     const load = async () => {
@@ -55,7 +60,11 @@ export default function ShopPage() {
 
   const filteredProducts = useMemo(() => {
     let list = [...products];
-    if (activeCategory !== 'all') list = list.filter(p => p.category_id === activeCategory);
+    if (activeCategory === 'best_sellers') {
+      list = list.filter(p => p.is_best_seller);
+    } else if (activeCategory !== 'all') {
+      list = list.filter(p => p.category_id === activeCategory);
+    }
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(p => p.name.toLowerCase().includes(q));
@@ -104,6 +113,15 @@ export default function ShopPage() {
                   : 'bg-white text-gray-600 border-gray-200 hover:border-gold-400 hover:text-gold-700'}`}
             >
               All
+            </button>
+            <button
+              onClick={() => setActiveCategory('best_sellers')}
+              className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider border transition-all duration-150
+                ${activeCategory === 'best_sellers'
+                  ? 'bg-gold-600 text-white border-gold-600 shadow-sm'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-gold-400 hover:text-gold-700'}`}
+            >
+              Best Sellers
             </button>
             {categories.map(cat => (
               <button

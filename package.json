@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@cashfreepayments/cashfree-js": "^1.0.6",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
@@ -21,7 +20,6 @@
     "@supabase/supabase-js": "^2.39.3",
     "@types/qrcode": "^1.5.6",
     "browser-image-compression": "^2.0.2",
-    "cashfree-pg": "^5.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "critters": "^0.0.25",
@@ -32,8 +30,9 @@
     "jspdf": "^4.0.0",
     "lucide-react": "^0.344.0",
     "next": "^16.2.1",
-    "nodemailer": "^7.0.12",
+    "nodemailer": "^9.0.3",
     "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sandbox": "^2.5.6",
@@ -50,9 +49,13 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^16.0.10",
     "ignore-loader": "^0.1.2",
-    "postcss": "^8.4.35",
+    "postcss": "^8.5.10",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "axios": "^1.15.3",
+    "postcss": "^8.5.10"
   }
 }

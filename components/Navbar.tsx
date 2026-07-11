@@ -92,8 +92,25 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
               ))}
             </nav>
 
-            {/* Right: cart icon (desktop) + hamburger (mobile, hidden since we have bottom nav) */}
-            <div className="hidden md:flex items-center gap-3">
+            {/* Right: Search, Wishlist, Cart */}
+            <div className="hidden md:flex items-center gap-4">
+              <div className="relative group hidden lg:block">
+                <input 
+                  type="text" 
+                  placeholder="Search jewelry..." 
+                  className="pl-4 pr-10 py-2 rounded-full border border-gray-200 text-sm focus:outline-none focus:border-gold-500 w-48 transition-all duration-300 focus:w-64"
+                />
+                <svg className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+
+              <Link href="/wishlist" className="p-2.5 text-gray-700 hover:text-gold-600 transition-colors rounded-xl hover:bg-gold-50" aria-label="Wishlist">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </Link>
+
               <Link href="/cart" className="relative p-2.5 text-gray-700 hover:text-gold-600 transition-colors rounded-xl hover:bg-gold-50">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />

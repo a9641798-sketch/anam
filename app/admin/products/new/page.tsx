@@ -13,12 +13,14 @@ interface ProductFormData {
   price: number | '';
   stock: number | '';
   category_id: string;
+  is_best_seller: boolean;
+  video_url: string;
 }
 
 export default function NewProduct() {
   const router = useRouter();
   const [formData, setFormData] = useState<ProductFormData>({
-    name: '', description: '', price: '', stock: '', category_id: ''
+    name: '', description: '', price: '', stock: '', category_id: '', is_best_seller: false, video_url: ''
   });
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [images, setImages] = useState<{ url: string; is_cover: boolean }[]>([]);
@@ -43,7 +45,9 @@ export default function NewProduct() {
       .insert({
         name: formData.name, description: formData.description,
         price: Number(formData.price), stock: Number(formData.stock),
-        category_id: formData.category_id
+        category_id: formData.category_id,
+        is_best_seller: formData.is_best_seller,
+        video_url: formData.video_url || null
       })
       .select().single();
 
@@ -135,6 +139,21 @@ export default function NewProduct() {
                 ⚠️ No categories found. <Link href="/admin/categories" className="underline">Create one first.</Link>
               </p>
             )}
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Video URL (Optional)</label>
+            <input type="url" className={inputClass} placeholder="https://example.com/video.mp4"
+              value={formData.video_url} onChange={e => setFormData({ ...formData, video_url: e.target.value })} />
+          </div>
+          <div className="flex items-center gap-2 pt-2">
+            <input 
+              type="checkbox" 
+              id="isBestSeller" 
+              checked={formData.is_best_seller} 
+              onChange={e => setFormData({ ...formData, is_best_seller: e.target.checked })} 
+              className="rounded border-gray-300 text-gold-600 focus:ring-gold-500 w-4 h-4" 
+            />
+            <label htmlFor="isBestSeller" className="text-sm text-gray-700 font-semibold cursor-pointer">Mark as Best Seller</label>
           </div>
         </div>
 

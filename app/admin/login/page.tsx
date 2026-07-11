@@ -13,7 +13,12 @@ export default function AdminLoginPage() {
 
   // If already logged in, redirect straight to admin
   useEffect(() => {
-    supabase!.auth.getSession().then(({ data: { session } }) => {
+    if (!supabase) {
+      setChecking(false);
+      setError('Database configuration missing. Please check .env file.');
+      return;
+    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.replace('/admin');
       else setChecking(false);
     });
@@ -24,7 +29,13 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError('');
 
-    const { error: authError } = await supabase!.auth.signInWithPassword({ email, password });
+    if (!supabase) {
+      setError('Database configuration missing. Please check .env file.');
+      setLoading(false);
+      return;
+    }
+
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
       setError(authError.message);

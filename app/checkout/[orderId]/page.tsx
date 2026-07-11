@@ -4,11 +4,11 @@ import React from 'react';
 import { supabase } from '@/lib/db';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-// @ts-expect-error: Cashfree JS SDK lacks type declarations
-import { load } from '@cashfreepayments/cashfree-js';
+import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage({ params: paramsPromise }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = React.use(paramsPromise);
+  const router = useRouter();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [paymentLoading, setPaymentLoading] = useState(false);
@@ -22,13 +22,23 @@ export default function CheckoutPage({ params: paramsPromise }: { params: Promis
       setLoading(false);
     }
     loadData();
+
+    // Dynamically load Razorpay script
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
   }, [orderId]);
 
-  const handleCashfreePayment = async () => {
+  const handleRazorpayPayment = async () => {
     try {
       setPaymentLoading(true);
 
-      // 1. Get Payment Session ID from our backend
+      // 1. Get Razorpay Order ID from our backend
       const response = await fetch('/api/payment/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,29 +47,75 @@ export default function CheckoutPage({ params: paramsPromise }: { params: Promis
 
       const data = await response.json();
 
-      if (!response.ok || !data.payment_session_id) {
+      if (!response.ok || !data.razorpay_order_id) {
         const errorMsg = data.error || 'Failed to initialize payment';
         const errorDetail = data.details ? `\n\nDetail: ${JSON.stringify(data.details)}` : '';
         throw new Error(`${errorMsg}${errorDetail}`);
       }
 
-      // 2. Load Cashfree SDK
-      const cfEnv = process.env.NEXT_PUBLIC_CASHFREE_ENVIRONMENT?.toLowerCase() === 'production' ? 'production' : 'sandbox';
-      const cashfree = await load({
-        mode: cfEnv as "sandbox" | "production"
-      });
-
-      // 3. Trigger Drop-in Checkout Component
-      const checkoutOptions = {
-        paymentSessionId: data.payment_session_id,
-        redirectTarget: "_self", // Redirects the page directly to verify route
+      // 2. Configure Razorpay Options
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
+        amount: data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        currency: data.currency,
+        name: "Her Highness",
+        description: `Order #${order.id.split('-')[0]}`,
+        image: "/logo.png", // Optional logo
+        order_id: data.razorpay_order_id,
+        handler: async function (response: any) {
+          // 3. Verify Payment Signature on backend
+          try {
+            const verifyRes = await fetch('/api/payment/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                internal_id: order.id,
+              })
+            });
+            const verifyData = await verifyRes.json();
+            
+            if (verifyRes.ok && verifyData.success) {
+               router.replace(`/checkout/${order.id}/success`);
+            } else {
+               throw new Error(verifyData.error || 'Payment verification failed');
+            }
+          } catch (err: any) {
+            console.error("Verification error:", err);
+            router.replace(`/checkout/${order.id}/success?error=true`);
+          }
+        },
+        prefill: {
+          name: order.customer_name,
+          email: order.customer_email || "customer@example.com",
+          contact: order.customer_phone
+        },
+        theme: {
+          color: "#D4AF37" // Gold color matching Her Highness theme
+        },
+        modal: {
+          ondismiss: function() {
+            setPaymentLoading(false);
+          }
+        }
       };
 
-      cashfree.checkout(checkoutOptions);
+      // @ts-ignore
+      const rzp1 = new window.Razorpay(options);
+      
+      rzp1.on('payment.failed', function (response: any) {
+         console.error("Payment Failed:", response.error);
+         alert(`Payment Failed: ${response.error.description}`);
+         setPaymentLoading(false);
+      });
+
+      rzp1.open();
 
     } catch (err: any) {
-       console.error("Cashfree Init Error:", err);
-       alert(`Payment Gateway Error: ${err.message}\n\nPlease check your .env.local configuration.`);
+       console.error("Razorpay Init Error:", err);
+       alert(`Payment Gateway Error: ${err.message}\n\nPlease check your .env configuration.`);
        setPaymentLoading(false);
     }
   };
@@ -119,7 +175,7 @@ export default function CheckoutPage({ params: paramsPromise }: { params: Promis
             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase">You will be securely redirected to our payment gateway portal</p>
             
             <button 
-              onClick={handleCashfreePayment}
+              onClick={handleRazorpayPayment}
               disabled={paymentLoading}
               className={`w-full max-w-md bg-gold-500 hover:bg-gold-600 text-white px-8 py-5 text-sm uppercase tracking-[0.2em] rounded-full font-bold transition-all shadow-[0_12px_24px_-8px_rgba(212,175,55,0.4)] flex items-center justify-center gap-3 ${paymentLoading ? 'opacity-80 cursor-wait' : ''}`}
             >
@@ -129,7 +185,7 @@ export default function CheckoutPage({ params: paramsPromise }: { params: Promis
                   Initializing Gateway...
                  </>
               ) : (
-                'Pay Securely via Cashfree'
+                'Pay Securely via Razorpay'
               )}
             </button>
             <div className="flex items-center gap-4 mt-8 opacity-60">

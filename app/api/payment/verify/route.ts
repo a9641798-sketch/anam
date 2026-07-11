@@ -1,57 +1,51 @@
 import { NextResponse } from 'next/server';
-import { Cashfree, CFEnvironment } from "cashfree-pg";
+import crypto from 'crypto';
 import { supabase } from '@/lib/db';
 
-const cfEnv = process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' 
-    ? CFEnvironment.PRODUCTION 
-    : CFEnvironment.SANDBOX;
-
-const cashfree = new Cashfree(
-    cfEnv,
-    process.env.CASHFREE_APP_ID || '',
-    process.env.CASHFREE_SECRET_KEY || ''
-);
-
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const cfOrderId = searchParams.get('order_id');
-    const internalId = searchParams.get('internal_id');
+    const body = await req.json();
+    const { 
+        razorpay_order_id, 
+        razorpay_payment_id, 
+        razorpay_signature,
+        internal_id 
+    } = body;
 
-    if (!cfOrderId || !internalId) {
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !internal_id) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    // 1. Fetch Payment Status securely from Cashfree Server
-    const response = await cashfree.PGOrderFetchPayments(cfOrderId);
+    // 1. Verify Razorpay Signature
+    const secret = process.env.RAZORPAY_KEY_SECRET || '';
     
-    // Check if any payment was SUCCESS
-    const payments = response.data || [];
-    const isPaid = payments.some((p: any) => p.payment_status === 'SUCCESS');
+    const bodyText = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(bodyText.toString())
+        .digest('hex');
 
-    if (isPaid) {
+    const isAuthentic = expectedSignature === razorpay_signature;
+
+    if (isAuthentic) {
       // 2. Mark order as Paid in Supabase
       const { error } = await supabase!
         .from('orders')
         .update({ payment_status: 'paid', status: 'processing' })
-        .eq('id', internalId);
+        .eq('id', internal_id);
         
       if (error) {
         console.error("Supabase Error Updating Payment Status:", error);
+        return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
       }
+      
+      return NextResponse.json({ success: true, message: 'Payment verified successfully' });
+    } else {
+      return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 });
     }
 
-    // 3. Redirect back to frontend Success Page
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    return NextResponse.redirect(`${baseUrl}/checkout/${internalId}/success`);
-
   } catch (error: any) {
-    console.error('Cashfree Verification Error:', error.response?.data || error);
-    
-    const { searchParams } = new URL(req.url);
-    const internalId = searchParams.get('internal_id');
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    
-    return NextResponse.redirect(`${baseUrl}/checkout/${internalId}/success?error=true`);
+    console.error('Razorpay Verification Error:', error);
+    return NextResponse.json({ error: 'Internal server error during verification' }, { status: 500 });
   }
 }

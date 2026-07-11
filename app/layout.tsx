@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import ConditionalFooter from "@/components/ConditionalFooter"
+import WhatsAppChat from "@/components/WhatsAppChat"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
         </main>
         <ConditionalFooter />
         <Toaster />
+        <WhatsAppChat />
       </body>
     </html>
   )

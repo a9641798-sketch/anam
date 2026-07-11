@@ -18,38 +18,65 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Auth guard: redirect to login if no session (skip on login page itself)
+  // Auth guard: redirect to login if no session
   useEffect(() => {
-    if (isLoginPage) {
-      setAuthChecked(true);
+    if (!supabase) {
+      if (!isLoginPage) router.replace('/admin/login');
+      else setAuthChecked(true);
       return;
     }
+
+    let mounted = true;
+
     const checkAuth = async () => {
-      if (!supabase) {
-        router.replace('/admin/login');
-        return;
+      try {
+        // Add a timeout to prevent hanging if Supabase API is unresponsive
+        const sessionPromise = supabase!.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Auth timeout')), 5000));
+        
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        
+        if (!mounted) return;
+
+        if (!session) {
+          if (!isLoginPage) {
+            router.replace('/admin/login');
+          } else {
+            setAuthChecked(true);
+          }
+        } else {
+          if (isLoginPage) {
+            router.replace('/admin');
+          } else {
+            setUserEmail(session.user.email ?? null);
+            setAuthChecked(true);
+          }
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err);
+        if (mounted) {
+          setAuthChecked(true); // Don't hang
+          if (!isLoginPage) router.replace('/admin/login');
+        }
       }
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.replace('/admin/login');
-        return;
-      }
-      setUserEmail(session.user.email ?? null);
-      setAuthChecked(true);
     };
     checkAuth();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase!.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') return; // Let checkAuth handle the initial load
+      
       if (!session && !isLoginPage) {
         router.replace('/admin/login');
-      } else if (session) {
+      } else if (session && !isLoginPage) {
         setUserEmail(session.user.email ?? null);
         setAuthChecked(true);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [router, isLoginPage, pathname]);
 
   const handleSignOut = async () => {

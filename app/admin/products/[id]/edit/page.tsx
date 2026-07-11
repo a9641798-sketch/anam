@@ -16,7 +16,9 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     description: '',
     price: '',
     stock: '',
-    category_id: ''
+    category_id: '',
+    video_url: '',
+    is_best_seller: false
   });
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [images, setImages] = useState<{ id?: string, url: string, is_cover: boolean, toDelete?: boolean }[]>([]);
@@ -39,7 +41,9 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           description: product.description || '',
           price: product.price,
           stock: product.stock,
-          category_id: product.category_id || ''
+          category_id: product.category_id || '',
+          video_url: product.video_url || '',
+          is_best_seller: product.is_best_seller || false
         });
       }
 
@@ -81,7 +85,9 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       description: formData.description,
       price: Number(formData.price),
       stock: Number(formData.stock),
-      category_id: formData.category_id
+      category_id: formData.category_id,
+      video_url: formData.video_url || null,
+      is_best_seller: formData.is_best_seller
     }).eq('id', id);
 
     // 2. Process Images
@@ -190,6 +196,21 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 <span>⚠️</span> No categories found. <Link href="/admin/categories" className="underline font-bold">Create one.</Link>
               </p>
             )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">Video URL (Optional)</label>
+            <input type="url" className="w-full bg-[#222] border border-[#333] rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none" 
+                   value={formData.video_url} onChange={e => setFormData({...formData, video_url: e.target.value})} placeholder="https://example.com/video.mp4" />
+          </div>
+          <div className="flex items-center gap-2 pt-2">
+            <input 
+              type="checkbox" 
+              id="isBestSeller" 
+              checked={formData.is_best_seller} 
+              onChange={e => setFormData({ ...formData, is_best_seller: e.target.checked })} 
+              className="rounded border-[#333] text-[#D4AF37] focus:ring-[#D4AF37] w-4 h-4 bg-[#222]" 
+            />
+            <label htmlFor="isBestSeller" className="text-sm text-gray-400 font-medium cursor-pointer">Mark as Best Seller</label>
           </div>
         </div>
 

@@ -7,8 +7,18 @@ type CODConfig = {
   extra_charge: number;
 };
 
+type SocialLinks = {
+  whatsapp: string;
+  instagram: string;
+  facebook: string;
+  twitter: string;
+};
+
 export default function SettingsPage() {
   const [codCharge, setCodCharge] = useState<number>(0);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({
+    whatsapp: '', instagram: '', facebook: '', twitter: ''
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -17,12 +27,15 @@ export default function SettingsPage() {
     async function fetchSettings() {
       const { data, error } = await supabase!
         .from('site_settings')
-        .select('value')
-        .eq('id', 'cod_config')
-        .single();
+        .select('*')
+        .in('id', ['cod_config', 'social_links']);
       
       if (!error && data) {
-        setCodCharge((data.value as CODConfig).extra_charge);
+        const cod = data.find(d => d.id === 'cod_config');
+        if (cod) setCodCharge((cod.value as CODConfig).extra_charge || 0);
+
+        const social = data.find(d => d.id === 'social_links');
+        if (social) setSocialLinks(social.value as SocialLinks);
       }
       setLoading(false);
     }
@@ -34,7 +47,7 @@ export default function SettingsPage() {
     setSaving(true);
     setMessage(null);
 
-    const { error } = await supabase!
+    const { error: codErr } = await supabase!
       .from('site_settings')
       .upsert({
         id: 'cod_config',
@@ -42,8 +55,16 @@ export default function SettingsPage() {
         updated_at: new Date().toISOString()
       });
 
-    if (error) {
-      setMessage({ type: 'error', text: 'Failed to save settings: ' + error.message });
+    const { error: socialErr } = await supabase!
+      .from('site_settings')
+      .upsert({
+        id: 'social_links',
+        value: socialLinks,
+        updated_at: new Date().toISOString()
+      });
+
+    if (codErr || socialErr) {
+      setMessage({ type: 'error', text: 'Failed to save settings. Please try again.' });
     } else {
       setMessage({ type: 'success', text: 'Settings saved successfully!' });
     }
@@ -97,6 +118,63 @@ export default function SettingsPage() {
                 <p className="text-[10px] text-gray-400 font-medium leading-relaxed uppercase tracking-wider">
                   This fee will be added to the total amount when a customer selects Cash on Delivery as their payment method.
                 </p>
+              </div>
+            </div>
+          </section>
+
+          <div className="h-[1px] bg-gray-50 w-full"></div>
+
+          {/* Social Links Section */}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100/50">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 uppercase tracking-widest text-sm">Social Media Links</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">WhatsApp Number</label>
+                <input
+                  type="text"
+                  value={socialLinks.whatsapp}
+                  onChange={(e) => setSocialLinks({...socialLinks, whatsapp: e.target.value})}
+                  className="w-full px-4 py-4 bg-[#FCFBF8] border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all text-sm font-medium"
+                  placeholder="e.g. 919876543210 (Include country code)"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Instagram URL</label>
+                <input
+                  type="text"
+                  value={socialLinks.instagram}
+                  onChange={(e) => setSocialLinks({...socialLinks, instagram: e.target.value})}
+                  className="w-full px-4 py-4 bg-[#FCFBF8] border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all text-sm font-medium"
+                  placeholder="https://instagram.com/yourhandle"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Facebook URL</label>
+                <input
+                  type="text"
+                  value={socialLinks.facebook}
+                  onChange={(e) => setSocialLinks({...socialLinks, facebook: e.target.value})}
+                  className="w-full px-4 py-4 bg-[#FCFBF8] border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all text-sm font-medium"
+                  placeholder="https://facebook.com/yourpage"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Twitter URL</label>
+                <input
+                  type="text"
+                  value={socialLinks.twitter}
+                  onChange={(e) => setSocialLinks({...socialLinks, twitter: e.target.value})}
+                  className="w-full px-4 py-4 bg-[#FCFBF8] border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all text-sm font-medium"
+                  placeholder="https://twitter.com/yourhandle"
+                />
               </div>
             </div>
           </section>

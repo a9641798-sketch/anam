@@ -15,12 +15,14 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     try { const s = localStorage.getItem('cart'); if (s) setCart(JSON.parse(s)); } catch {}
+    setCartLoaded(true);
   }, []);
-  useEffect(() => { localStorage.setItem('cart', JSON.stringify(cart)); }, [cart]);
+  useEffect(() => { if (cartLoaded) localStorage.setItem('cart', JSON.stringify(cart)); }, [cart, cartLoaded]);
 
   useEffect(() => {
     const load = async () => {
