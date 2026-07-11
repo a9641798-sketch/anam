@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
 import { FadeIn, SlideUp } from '@/components/ui/FadeIn';
 
 type Category = { id: string; name: string; description: string; slug: string; image_url?: string };
@@ -22,7 +21,6 @@ export default function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
-      <Navbar cartCount={0} />
       
       <main className="flex-grow pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-4">

@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Navbar from "@/components/Navbar";
 import { FadeIn, SlideUp } from "@/components/ui/FadeIn";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,7 +23,6 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
-      <Navbar cartCount={0} />
       
       <main className="flex-grow pt-32 pb-20">
         <div className="max-w-5xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12">

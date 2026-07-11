@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { supabase } from '@/lib/db';
-import Navbar from "@/components/Navbar";
 import { FadeIn, SlideUp } from "@/components/ui/FadeIn";
 import { Package, Truck, CheckCircle, Clock } from 'lucide-react';
 
@@ -66,7 +65,6 @@ export default function TrackOrderPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
-      <Navbar cartCount={0} />
       
       <main className="flex-grow pt-32 pb-20">
         <div className="max-w-4xl mx-auto px-4">

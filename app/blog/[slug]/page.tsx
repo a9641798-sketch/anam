@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { supabaseAdmin } from '@/lib/db';
-import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 
 // Simple markdown to HTML parser for basic formatting
@@ -65,7 +64,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
-      <Navbar cartCount={0} />
       
       <main className="flex-grow pt-24 md:pt-32 pb-20">
         <article className="max-w-3xl mx-auto px-4">

@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
 import CartFab from '@/components/CartFab';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -42,6 +41,7 @@ export default function ProductDetailClient({ productId }: { productId: string }
   useEffect(() => {
     if (cartLoaded) {
       localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
     }
   }, [cart, cartLoaded]);
 
@@ -148,7 +148,6 @@ export default function ProductDetailClient({ productId }: { productId: string }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FDFBF7]">
-      <Navbar cartCount={cartCount} />
       <CartFab items={cart} />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 md:pt-32 pb-20 flex-1 w-full">

@@ -1,10 +1,8 @@
-import Navbar from "@/components/Navbar";
 import { FadeIn, SlideUp } from "@/components/ui/FadeIn";
 
 export default function TermsConditionsPage() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
-      <Navbar cartCount={0} />
       
       <main className="flex-grow pt-32 pb-20">
         <div className="max-w-3xl mx-auto px-4">

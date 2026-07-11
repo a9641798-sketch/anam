@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
 import { FadeIn, SlideUp } from '@/components/ui/FadeIn';
 
 type CartItem = { id: string; name: string; quantity: number; price: number; image?: string };
@@ -36,6 +35,7 @@ export default function WishlistPage() {
         newCart = [...prev, { ...item, quantity: 1 }];
       }
       localStorage.setItem('cart', JSON.stringify(newCart));
+      window.dispatchEvent(new Event('cartUpdated'));
       return newCart;
     });
     removeFromWishlist(item.id);
@@ -43,7 +43,6 @@ export default function WishlistPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
-      <Navbar cartCount={cart.reduce((s, i) => s + i.quantity, 0)} />
       
       <main className="flex-grow pt-32 pb-20">
         <div className="max-w-5xl mx-auto px-4">

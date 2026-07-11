@@ -2,7 +2,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/db';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
 import CartFab from '@/components/CartFab';
 import { FadeIn, SlideUp } from '@/components/ui/FadeIn';
 
@@ -41,6 +40,7 @@ export default function ShopPage() {
   useEffect(() => {
     if (cartLoaded) {
       localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
     }
   }, [cart, cartLoaded]);
 
@@ -85,7 +85,6 @@ export default function ShopPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
-      <Navbar cartCount={cart.reduce((s, i) => s + i.quantity, 0)} />
       <CartFab items={cart} />
 
       {/* Hero */}

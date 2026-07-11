@@ -105,6 +105,7 @@ export default function CartPage() {
   const saveCart = (newCart: CartItem[]) => {
     setCart(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
+    window.dispatchEvent(new Event('cartUpdated'));
   };
 
   const removeItem = (id: string) => {
@@ -239,6 +240,7 @@ export default function CartPage() {
 
       // 3. Clear cart
       localStorage.removeItem('cart');
+      window.dispatchEvent(new Event('cartUpdated'));
       
       // 4. Redirect
       if (paymentMethod === 'cod') {
@@ -258,19 +260,6 @@ export default function CartPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FDFBF7]">
-      <header className="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl border-b border-gold-200/40 shadow-sm transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
-          <Link href="/" className="font-heading text-xl md:text-2xl font-bold tracking-[0.2em] text-gold-600 uppercase">
-            Her Highness
-          </Link>
-          <nav className="flex gap-6 md:gap-10">
-            <Link href="/" className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-gray-600 hover:text-gold-600 transition-colors">Home</Link>
-            <Link href="/shop" className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-gray-600 hover:text-gold-600 transition-colors">Shop</Link>
-            <Link href="/cart" className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-gold-600 transition-colors">Cart</Link>
-          </nav>
-        </div>
-      </header>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 flex-1 w-full">
         {/* Step Indicator */}
         <div className="max-w-3xl mx-auto mb-16">

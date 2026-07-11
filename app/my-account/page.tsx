@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db';
-import Navbar from "@/components/Navbar";
 import { FadeIn, SlideUp } from "@/components/ui/FadeIn";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -45,7 +44,6 @@ export default function MyAccountPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
-      <Navbar cartCount={0} />
       
       <main className="flex-grow pt-32 pb-20">
         <div className="max-w-5xl mx-auto px-4">

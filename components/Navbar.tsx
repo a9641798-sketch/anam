@@ -3,14 +3,33 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-interface NavbarProps {
-  cartCount?: number;
-}
-
-export default function Navbar({ cartCount = 0 }: NavbarProps) {
+export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      try {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        setCartCount(cart.reduce((s: number, i: any) => s + i.quantity, 0));
+      } catch (e) {
+        console.error("Error reading cart for Navbar", e);
+      }
+    };
+    
+    // Initial load
+    updateCartCount();
+
+    // Listen for custom event
+    window.addEventListener('cartUpdated', updateCartCount);
+    return () => window.removeEventListener('cartUpdated', updateCartCount);
+  }, []);
+
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -19,6 +38,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
   }, []);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
+
 
   const links = [
     { href: '/', label: 'Home' },

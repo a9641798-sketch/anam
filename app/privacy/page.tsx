@@ -4,18 +4,6 @@ import { FadeIn } from '@/components/ui/FadeIn';
 export default function PrivacyPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#FDFBF7]">
-      {/* Navigation */}
-      <header className="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl border-b border-gold-200/40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
-          <Link href="/" className="font-heading text-xl md:text-2xl font-bold tracking-[0.2em] text-gold-600 uppercase">
-            HER HIGHNESS
-          </Link>
-          <nav className="flex gap-6 md:gap-10">
-            <Link href="/" className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-gray-600 hover:text-gold-600 transition-colors">Home</Link>
-            <Link href="/shop" className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-gray-600 hover:text-gold-600 transition-colors">Shop</Link>
-          </nav>
-        </div>
-      </header>
 
       <main className="flex-1 pt-48 pb-32 px-4">
         <div className="max-w-3xl mx-auto space-y-16">

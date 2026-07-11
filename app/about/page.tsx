@@ -4,22 +4,9 @@ import Link from 'next/link';
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#FDFBF7]">
-      {/* Navigation */}
-      <header className="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl border-b border-gold-200/40 shadow-sm transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
-          <Link href="/" className="font-heading text-xl md:text-2xl font-bold tracking-[0.2em] text-gold-600 uppercase">
-            HER HIGHNESS
-          </Link>
-          <nav className="flex gap-6 md:gap-10">
-            <Link href="/" className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-gray-600 hover:text-gold-600 transition-colors">Home</Link>
-            <Link href="/shop" className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-gray-600 hover:text-gold-600 transition-colors">Shop</Link>
-            <Link href="/about" className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-gold-600 transition-colors">About</Link>
-          </nav>
-        </div>
-      </header>
 
       {/* Hero Section */}
-      <section className="pt-48 pb-24 px-4 bg-gradient-to-b from-white to-[#FDFBF7]">
+      <section className="pt-28 md:pt-32 pb-24 px-4 bg-gradient-to-b from-white to-[#FDFBF7]">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <FadeIn>
             <span className="text-xs font-bold uppercase tracking-[0.4em] text-gold-500 mb-4 block">Our Story</span>

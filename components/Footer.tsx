@@ -30,7 +30,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-white border-t border-gold-100 pt-24 pb-12 overflow-hidden">
+    <footer className="bg-white border-t border-gold-100 pt-24 pb-28 md:pb-12 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-20">
           
