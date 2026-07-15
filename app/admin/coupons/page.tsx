@@ -18,7 +18,7 @@ export default function AdminCouponsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
-  
+
   // Form state
   const [code, setCode] = useState('');
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
@@ -100,7 +100,7 @@ export default function AdminCouponsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="p-6">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Manage Coupons</h1>
         <button
@@ -141,7 +141,7 @@ export default function AdminCouponsPage() {
                       {coupon.expiry_date ? new Date(coupon.expiry_date).toLocaleDateString() : 'Never'}
                     </td>
                     <td className="p-4">
-                      <button 
+                      <button
                         onClick={() => toggleStatus(coupon.id, coupon.is_active)}
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize cursor-pointer
                         ${coupon.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
@@ -174,16 +174,16 @@ export default function AdminCouponsPage() {
               </h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Coupon Code</label>
-                <input 
-                  required 
-                  type="text" 
-                  value={code} 
-                  onChange={e => setCode(e.target.value)} 
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500 uppercase" 
+                <input
+                  required
+                  type="text"
+                  value={code}
+                  onChange={e => setCode(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500 uppercase"
                   placeholder="e.g. SUMMER20"
                 />
               </div>
@@ -191,9 +191,9 @@ export default function AdminCouponsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Type</label>
-                  <select 
-                    value={discountType} 
-                    onChange={e => setDiscountType(e.target.value as any)} 
+                  <select
+                    value={discountType}
+                    onChange={e => setDiscountType(e.target.value as any)}
                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500 bg-white"
                   >
                     <option value="percentage">Percentage (%)</option>
@@ -202,61 +202,61 @@ export default function AdminCouponsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Discount Value</label>
-                  <input 
-                    required 
-                    type="number" 
+                  <input
+                    required
+                    type="number"
                     min="0"
                     step="any"
-                    value={discountValue} 
-                    onChange={e => setDiscountValue(Number(e.target.value))} 
-                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500" 
+                    value={discountValue}
+                    onChange={e => setDiscountValue(Number(e.target.value))}
+                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Minimum Order Value (₹)</label>
-                <input 
-                  required 
-                  type="number" 
+                <input
+                  required
+                  type="number"
                   min="0"
-                  value={minOrderValue} 
-                  onChange={e => setMinOrderValue(Number(e.target.value))} 
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500" 
+                  value={minOrderValue}
+                  onChange={e => setMinOrderValue(Number(e.target.value))}
+                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Expiry Date (Optional)</label>
-                <input 
-                  type="date" 
-                  value={expiryDate} 
-                  onChange={e => setExpiryDate(e.target.value)} 
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500" 
+                <input
+                  type="date"
+                  value={expiryDate}
+                  onChange={e => setExpiryDate(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold-500"
                 />
               </div>
 
               <div className="flex items-center gap-2 pt-2">
-                <input 
-                  type="checkbox" 
-                  id="isActive" 
-                  checked={isActive} 
-                  onChange={e => setIsActive(e.target.checked)} 
-                  className="rounded border-gray-300 text-gold-600 focus:ring-gold-500" 
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={isActive}
+                  onChange={e => setIsActive(e.target.checked)}
+                  className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
                 />
                 <label htmlFor="isActive" className="text-sm text-gray-700 font-medium">Coupon is Active</label>
               </div>
 
               <div className="pt-6 flex gap-3">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-gray-200 transition-colors"
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="flex-1 py-3 px-4 bg-gold-600 text-white rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-gold-700 transition-colors shadow-lg"
                 >
                   Save Coupon

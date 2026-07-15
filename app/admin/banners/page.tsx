@@ -130,7 +130,7 @@ export default function BannersAdmin() {
           </div>
         )}
       </div>
-      
+
       {!loading && banners.length > 0 && (
         <p className="text-xs text-gray-400 text-center">
           💡 Active banners auto-rotate on the homepage every 5 seconds. Drag to reorder (coming soon).

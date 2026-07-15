@@ -4,6 +4,7 @@ import { supabase } from '@/lib/db';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import ActiveOffers from '@/components/ActiveOffers';
 
 type CartItem = {
   id: string; // Product ID
@@ -476,11 +477,13 @@ export default function CartPage() {
                            <button onClick={removeCoupon} className="text-red-500 hover:text-red-700 text-xs uppercase font-bold tracking-widest">Remove</button>
                         </div>
                       ) : (
-                        <div className="flex flex-col gap-2">
-                          <div className="flex gap-2">
-                            <input 
-                              type="text" 
-                              placeholder="Have a coupon code?" 
+                        <div className="flex flex-col gap-4">
+                          <ActiveOffers className="mb-2" />
+                          <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                              <input 
+                                type="text" 
+                                placeholder="Have a coupon code?" 
                               value={couponCode}
                               onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                               className="flex-1 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-gold-500 uppercase"
@@ -494,6 +497,7 @@ export default function CartPage() {
                             </button>
                           </div>
                           {couponError && <p className="text-red-500 text-xs font-medium pl-1">{couponError}</p>}
+                          </div>
                         </div>
                       )}
                     </div>

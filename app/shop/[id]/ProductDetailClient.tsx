@@ -5,6 +5,7 @@ import { supabase } from '@/lib/db';
 import Link from 'next/link';
 import CartFab from '@/components/CartFab';
 import { motion, AnimatePresence } from 'framer-motion';
+import ActiveOffers from '@/components/ActiveOffers';
 
 type CartItem = { id: string; name: string; quantity: number; price: number; image?: string; variant?: string };
 type Variant = { id: string; name: string; price_override: number; stock: number };
@@ -170,12 +171,17 @@ export default function ProductDetailClient({ productId }: { productId: string }
                     key={img.id}
                     onClick={() => setActiveImage(img.image_url)}
                     className={`relative shrink-0 w-16 h-20 md:w-full md:h-24 overflow-hidden rounded-xl border-2 transition-all duration-300 p-1
-                      ${activeImage === img.image_url ? 'border-gold-500 opacity-100' : 'border-gray-100 opacity-50 hover:opacity-80'}`}
+                      ${activeImage === img.image_url ? 'border-gold-500 opacity-100' : 'border-gray-100 opacity-50 hover:opacity-80'}
+                      ${img.is_video ? 'bg-black flex items-center justify-center' : ''}`}
                   >
-                    <img src={img.image_url} alt="thumb" className="w-full h-full object-cover rounded-lg" />
+                    {img.is_video ? (
+                      <svg className="w-6 h-6 text-white opacity-70" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    ) : (
+                      <img src={img.image_url} alt="thumb" className="w-full h-full object-cover rounded-lg" />
+                    )}
                   </button>
                 ))}
-                {/* Optional Video Thumbnail if video_url exists */}
+                {/* Optional Video Thumbnail if legacy video_url exists */}
                 {product.video_url && (
                   <button
                      onClick={() => setActiveImage(product.video_url)}
@@ -196,14 +202,14 @@ export default function ProductDetailClient({ productId }: { productId: string }
               onMouseMove={handleMouseMove}
             >
               <AnimatePresence mode="wait">
-                {activeImage === product.video_url ? (
+                {activeImage === product.video_url || images.find(i => i.image_url === activeImage)?.is_video ? (
                   <video 
-                    key="video"
-                    src={product.video_url} 
+                    key={`video-${activeImage}`}
+                    src={activeImage} 
                     controls 
                     autoPlay 
                     loop 
-                    className="absolute inset-0 w-full h-full object-cover" 
+                    className="absolute inset-0 w-full h-full object-cover bg-black" 
                   />
                 ) : (
                   <motion.div
@@ -311,6 +317,10 @@ export default function ProductDetailClient({ productId }: { productId: string }
               >
                 View Cart
               </Link>
+            </div>
+            
+            <div className="mt-8">
+              <ActiveOffers />
             </div>
 
             {/* Trust badges */}

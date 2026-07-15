@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ImageUpload from '@/components/admin/ImageUpload';
+import MediaUpload from '@/components/admin/MediaUpload';
 import { X, Loader2 } from 'lucide-react';
 
 export default function EditProduct({ params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +21,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     is_best_seller: false
   });
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
-  const [images, setImages] = useState<{ id?: string, url: string, is_cover: boolean, toDelete?: boolean }[]>([]);
+  const [images, setImages] = useState<{ id?: string, url: string, is_cover: boolean, is_video: boolean, toDelete?: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingCats, setLoadingCats] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,7 +53,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         setImages(productImages.map(img => ({
           id: img.id,
           url: img.image_url,
-          is_cover: img.is_cover
+          is_cover: img.is_cover,
+          is_video: img.is_video || false
         })));
       }
       setLoading(false);
@@ -97,6 +98,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         // Update existing
         await supabase!.from('product_images').update({
           is_cover: img.is_cover,
+          is_video: img.is_video,
           display_order: index
         }).eq('id', img.id);
       } else {
@@ -105,6 +107,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           product_id: id,
           image_url: img.url,
           is_cover: img.is_cover,
+          is_video: img.is_video,
           display_order: index
         });
       }
@@ -135,8 +138,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     setImages(updated);
   };
 
-  const handleImageUpload = (url: string) => {
-    setImages([...images, { url, is_cover: images.filter(i => !i.toDelete).length === 0 }]);
+  const handleMediaUpload = (url: string, isVideo: boolean) => {
+    setImages([...images, { url, is_cover: images.filter(i => !i.toDelete).length === 0, is_video: isVideo }]);
   };
 
   if (loading) return <div className="text-white">Loading...</div>;
@@ -221,13 +224,18 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               const originalIndex = images.indexOf(img);
               return (
                 <div key={originalIndex} className={`flex items-center gap-3 p-2 border rounded ${img.is_cover ? 'border-[#D4AF37] bg-[#D4AF37]/10' : 'border-[#333] bg-[#222]'}`}>
-                  <img src={img.url} className="w-16 h-16 object-cover rounded" />
+                  {img.is_video ? (
+                    <video src={img.url} className="w-16 h-16 object-cover rounded bg-black" />
+                  ) : (
+                    <img src={img.url} className="w-16 h-16 object-cover rounded" />
+                  )}
                   <div className="flex-1">
                     {img.is_cover ? (
                        <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-wider">Cover Image</span>
                     ) : (
                        <button type="button" onClick={() => setAsCover(originalIndex)} className="text-xs text-gray-400 hover:text-white underline">Set as Cover</button>
                     )}
+                    {img.is_video && <span className="ml-2 text-xs bg-gray-700 text-white px-2 py-0.5 rounded-full">Video</span>}
                   </div>
                   <button type="button" onClick={() => removeImage(originalIndex)} className="text-red-500 hover:text-red-400 p-1">
                     <X size={16} />
@@ -238,10 +246,10 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           </div>
 
           {images.filter(i => !i.toDelete).length < 5 && (
-            <ImageUpload 
+            <MediaUpload 
               bucketName="jewelry_images" 
-              onUploadComplete={handleImageUpload} 
-              buttonText="Upload Image" 
+              onUploadComplete={handleMediaUpload} 
+              buttonText="Upload Image/Video" 
               className="mt-4"
             />
           )}

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ImageUpload from '@/components/admin/ImageUpload';
+import MediaUpload from '@/components/admin/MediaUpload';
 import { X, Loader2, Star } from 'lucide-react';
 
 interface ProductFormData {
@@ -23,7 +23,7 @@ export default function NewProduct() {
     name: '', description: '', price: '', stock: '', category_id: '', is_best_seller: false, video_url: ''
   });
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [images, setImages] = useState<{ url: string; is_cover: boolean }[]>([]);
+  const [images, setImages] = useState<{ url: string; is_cover: boolean; is_video: boolean }[]>([]);
   const [saving, setSaving] = useState(false);
   const [loadingCats, setLoadingCats] = useState(true);
 
@@ -58,7 +58,7 @@ export default function NewProduct() {
     }
 
     const imageRecords = images.map((img, i) => ({
-      product_id: product.id, image_url: img.url, is_cover: img.is_cover, display_order: i
+      product_id: product.id, image_url: img.url, is_cover: img.is_cover, is_video: img.is_video, display_order: i
     }));
     await supabase!.from('product_images').insert(imageRecords);
 
@@ -66,9 +66,9 @@ export default function NewProduct() {
     router.push('/admin/products');
   };
 
-  const handleImageUpload = (url: string) => {
+  const handleMediaUpload = (url: string, isVideo: boolean) => {
     if (images.length >= 5) { alert('Maximum 5 images allowed.'); return; }
-    setImages([...images, { url, is_cover: images.length === 0 }]);
+    setImages([...images, { url, is_cover: images.length === 0, is_video: isVideo }]);
   };
 
   const setAsCover = (idx: number) =>
@@ -165,8 +165,12 @@ export default function NewProduct() {
           <div className="space-y-3">
             {images.map((img, i) => (
               <div key={i} className={`flex items-center gap-3 p-3 rounded-xl border ${img.is_cover ? 'border-gold-300 bg-gold-50/50' : 'border-gray-200'}`}>
-                <img src={img.url} alt="upload" className="w-14 h-14 object-cover rounded-lg shrink-0" />
-                <div className="flex-1 min-w-0">
+                {img.is_video ? (
+                  <video src={img.url} className="w-14 h-14 object-cover rounded-lg shrink-0 bg-black" />
+                ) : (
+                  <img src={img.url} alt="upload" className="w-14 h-14 object-cover rounded-lg shrink-0" />
+                )}
+                <div className="flex-1 min-w-0 flex items-center">
                   {img.is_cover ? (
                     <span className="inline-flex items-center gap-1 text-xs font-bold text-gold-700 uppercase tracking-wider">
                       <Star className="w-3 h-3 fill-current" /> Cover
@@ -176,6 +180,7 @@ export default function NewProduct() {
                       Set as Cover
                     </button>
                   )}
+                  {img.is_video && <span className="ml-3 text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-medium">Video</span>}
                 </div>
                 <button type="button" onClick={() => removeImage(i)} className="text-red-400 hover:text-red-600 p-1 hover:bg-red-50 rounded-lg transition-colors">
                   <X className="w-4 h-4" />
@@ -185,7 +190,7 @@ export default function NewProduct() {
           </div>
 
           {images.length < 5 && (
-            <ImageUpload bucketName="jewelry_images" onUploadComplete={handleImageUpload} buttonText="Upload Image" className="mt-2" />
+            <MediaUpload bucketName="jewelry_images" onUploadComplete={handleMediaUpload} buttonText="Upload Image/Video" className="mt-2" />
           )}
         </div>
 

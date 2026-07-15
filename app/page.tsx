@@ -4,6 +4,8 @@ import { supabase } from '@/lib/db';
 import Link from 'next/link';
 import CartFab from '@/components/CartFab';
 import { FadeIn, SlideUp } from '@/components/ui/FadeIn';
+import ActiveOffers from '@/components/ActiveOffers';
+import SocialFeed from '@/components/SocialFeed';
 
 type Banner = { id: string; image_url: string; title?: string; link?: string };
 type Product = { id: string; name: string; price: number; product_images?: { image_url: string; is_cover: boolean }[] };
@@ -192,6 +194,13 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Active Offers */}
+      <section className="bg-white py-8 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4">
+          <ActiveOffers />
+        </div>
+      </section>
+
       {/* Category Showcase */}
       {categories.length > 0 && (
         <section className="py-20 bg-[#FDFBF7]">
@@ -352,30 +361,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Instagram Gallery */}
-      <section className="py-2 bg-white">
-        <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/3 flex items-center justify-center p-12 bg-[#FDFBF7]">
-            <FadeIn className="text-center">
-              <h2 className="font-heading text-3xl font-medium text-gray-900 uppercase tracking-wide mb-4">Follow Us</h2>
-              <p className="text-gray-500 text-sm mb-6">Join our community on Instagram for daily inspiration and exclusive drops.</p>
-              <a href="#" className="inline-block border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-8 py-3 text-xs font-bold uppercase tracking-widest transition-colors">
-                @HerHighness
-              </a>
-            </FadeIn>
-          </div>
-          <div className="md:w-2/3 grid grid-cols-2 md:grid-cols-4">
-            {INSTAGRAM_POSTS.map((img, i) => (
-              <a key={i} href="#" className="relative aspect-square group overflow-hidden block">
-                <img src={img} alt="Instagram post" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="text-white text-2xl">♥</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Social Feed (Instagram & Pinterest) */}
+      <SocialFeed />
 
       {/* Newsletter */}
       <section className="bg-gold-50 py-20 border-t border-gold-100">

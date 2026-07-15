@@ -6,11 +6,13 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/db';
+import { downloadInvoice } from '@/lib/invoice';
 
 function CheckoutSuccessContent({ orderId }: { orderId: string }) {
   const searchParams = useSearchParams();
   const isError = searchParams.get('error') === 'true';
   const [order, setOrder] = useState<any>(null);
+  const [orderItems, setOrderItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -25,6 +27,16 @@ function CheckoutSuccessContent({ orderId }: { orderId: string }) {
       
       if (!error && data) {
         setOrder(data);
+        
+        // Fetch order items for invoice
+        const { data: items } = await supabase!
+          .from('order_items')
+          .select('*, products(name)')
+          .eq('order_id', orderId);
+        
+        if (items) {
+          setOrderItems(items);
+        }
       }
       setLoading(false);
     }
@@ -121,9 +133,17 @@ function CheckoutSuccessContent({ orderId }: { orderId: string }) {
               </div>
             )}
             
-            <Link href="/shop" className="block w-full bg-gold-500 hover:bg-gold-600 text-white px-8 py-5 text-center uppercase tracking-[0.2em] text-xs rounded-full font-bold transition-all shadow-[0_4px_20px_rgba(212,175,55,0.4)]">
-              Continue Shopping
-            </Link>
+            <div className="space-y-4">
+              <Link href="/shop" className="block w-full bg-gold-500 hover:bg-gold-600 text-white px-8 py-5 text-center uppercase tracking-[0.2em] text-xs rounded-full font-bold transition-all shadow-[0_4px_20px_rgba(212,175,55,0.4)]">
+                Continue Shopping
+              </Link>
+              <button 
+                onClick={() => downloadInvoice(order, orderItems)}
+                className="block w-full border border-gold-200 bg-gold-50 hover:bg-gold-100 text-gold-700 px-8 py-5 text-center uppercase tracking-[0.2em] text-xs rounded-full font-bold transition-all"
+              >
+                Download Invoice
+              </button>
+            </div>
 
             {/* Decorative Corner Ornaments */}
             <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-gold-100/50 rounded-tl-3xl"></div>

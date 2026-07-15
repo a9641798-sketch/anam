@@ -4,6 +4,7 @@ import { supabase } from '@/lib/db';
 import { FadeIn, SlideUp } from "@/components/ui/FadeIn";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { downloadInvoice } from '@/lib/invoice';
 
 export default function MyAccountPage() {
   const [user, setUser] = useState<any>(null);
@@ -22,10 +23,10 @@ export default function MyAccountPage() {
       
       setUser(session.user);
       
-      // Fetch user's orders
+      // Fetch user's orders with items for invoice generation
       const { data } = await supabase!
         .from('orders')
-        .select('*')
+        .select('*, order_items(*, products(name))')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
         
@@ -117,6 +118,12 @@ export default function MyAccountPage() {
                             <Link href="/track-order" className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gold-600 transition-colors">
                               Track
                             </Link>
+                            <button 
+                              onClick={() => downloadInvoice(order, order.order_items || [])}
+                              className="text-xs font-bold uppercase tracking-widest text-gold-600 hover:text-gold-700 transition-colors border border-gold-200 px-3 py-1 rounded"
+                            >
+                              Invoice
+                            </button>
                           </div>
                         </div>
                       ))}

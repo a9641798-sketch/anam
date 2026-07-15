@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase!.auth.signInWithPassword({ email, password });
 
     if (authError) {
       setError(authError.message);
