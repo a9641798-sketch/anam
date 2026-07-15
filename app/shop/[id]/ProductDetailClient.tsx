@@ -24,8 +24,6 @@ export default function ProductDetailClient({ productId }: { productId: string }
   const [addedToCart, setAddedToCart] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartLoaded, setCartLoaded] = useState(false);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
 
   // Review Form State
   const [reviewName, setReviewName] = useState('');
@@ -122,13 +120,6 @@ export default function ProductDetailClient({ productId }: { productId: string }
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setMousePos({ x, y });
-  };
-
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
 
   if (loading) return (
@@ -163,67 +154,63 @@ export default function ProductDetailClient({ productId }: { productId: string }
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-20 items-start">
           {/* Image Gallery */}
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col-reverse md:flex-row gap-4 lg:sticky lg:top-32">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col-reverse md:flex-row gap-5 lg:sticky lg:top-32">
             {images.length > 1 && (
               <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide w-full md:w-20 shrink-0">
                 {images.map((img: any) => (
                   <button
                     key={img.id}
                     onClick={() => setActiveImage(img.image_url)}
-                    className={`relative shrink-0 w-16 h-20 md:w-full md:h-24 overflow-hidden rounded-xl border-2 transition-all duration-300 p-1
-                      ${activeImage === img.image_url ? 'border-gold-500 opacity-100' : 'border-gray-100 opacity-50 hover:opacity-80'}
-                      ${img.is_video ? 'bg-black flex items-center justify-center' : ''}`}
+                    className={`relative shrink-0 w-16 h-20 md:w-full md:h-24 overflow-hidden rounded-xl transition-all duration-300 p-0.5
+                      ${activeImage === img.image_url ? 'ring-2 ring-gold-500 opacity-100 shadow-md' : 'ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gold-300'}`}
                   >
-                    {img.is_video ? (
-                      <svg className="w-6 h-6 text-white opacity-70" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    ) : (
-                      <img src={img.image_url} alt="thumb" className="w-full h-full object-cover rounded-lg" />
-                    )}
+                    <div className="w-full h-full rounded-lg overflow-hidden bg-[#FDFBF7] relative">
+                      {img.is_video ? (
+                        <>
+                          <video src={img.image_url} className="w-full h-full object-cover opacity-50" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="bg-white/90 p-1.5 rounded-full shadow-sm backdrop-blur-sm">
+                              <svg className="w-4 h-4 text-gray-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <img src={img.image_url} alt="thumbnail" className="w-full h-full object-cover" />
+                      )}
+                    </div>
                   </button>
                 ))}
-                {/* Optional Video Thumbnail if legacy video_url exists */}
-                {product.video_url && (
-                  <button
-                     onClick={() => setActiveImage(product.video_url)}
-                     className={`relative shrink-0 w-16 h-20 md:w-full md:h-24 overflow-hidden rounded-xl border-2 transition-all duration-300 p-1 bg-gray-100 flex items-center justify-center
-                       ${activeImage === product.video_url ? 'border-gold-500 opacity-100' : 'border-gray-100 opacity-50 hover:opacity-80'}`}
-                  >
-                    <svg className="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                  </button>
-                )}
               </div>
             )}
             
             {/* Main Media Area */}
-            <div 
-              className="relative aspect-square sm:aspect-[4/5] w-full bg-white rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.06)] border border-gold-100/50 cursor-crosshair"
-              onMouseEnter={() => setIsZoomed(true)}
-              onMouseLeave={() => setIsZoomed(false)}
-              onMouseMove={handleMouseMove}
-            >
+            <div className="relative aspect-square sm:aspect-[4/5] w-full bg-[#FDFBF7] rounded-3xl overflow-hidden shadow-sm border border-gold-100/50">
               <AnimatePresence mode="wait">
-                {activeImage === product.video_url || images.find(i => i.image_url === activeImage)?.is_video ? (
-                  <video 
+                {images.find(i => i.image_url === activeImage)?.is_video || activeImage === product.video_url ? (
+                  <motion.video 
                     key={`video-${activeImage}`}
+                    initial={{ opacity: 0, scale: 0.98 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    exit={{ opacity: 0 }} 
+                    transition={{ duration: 0.4 }}
                     src={activeImage} 
                     controls 
                     autoPlay 
                     loop 
-                    className="absolute inset-0 w-full h-full object-cover bg-black" 
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover" 
                   />
                 ) : (
-                  <motion.div
-                    key={activeImage}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35 }}
-                    className="absolute inset-0 w-full h-full bg-no-repeat bg-cover"
-                    style={{
-                      backgroundImage: `url(${activeImage})`,
-                      backgroundPosition: isZoomed ? `${mousePos.x}% ${mousePos.y}%` : 'center',
-                      backgroundSize: isZoomed ? '250%' : 'cover'
-                    }}
+                  <motion.img
+                    key={`img-${activeImage}`}
+                    initial={{ opacity: 0, scale: 0.98 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    exit={{ opacity: 0 }} 
+                    transition={{ duration: 0.4 }}
+                    src={activeImage}
+                    alt={product.name}
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 )}
               </AnimatePresence>

@@ -142,68 +142,74 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     setImages([...images, { url, is_cover: images.filter(i => !i.toDelete).length === 0, is_video: isVideo }]);
   };
 
-  if (loading) return <div className="text-white">Loading...</div>;
+  const inputClass = 'w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 transition-shadow';
+
+  if (loading) return (
+    <div className="flex justify-center py-20 text-gray-400">
+      <Loader2 className="w-8 h-8 animate-spin" />
+    </div>
+  );
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Edit Product</h2>
-        <button onClick={() => router.push('/admin/products')} className="text-gray-400 hover:text-white">Cancel</button>
+    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Edit Product</h2>
+          <p className="text-sm text-gray-500 mt-1">Update details and manage media for this product.</p>
+        </div>
+        <Link href="/admin/products" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors px-4 py-2 rounded-lg hover:bg-gray-100">
+          Cancel
+        </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="gap-8 grid grid-cols-1 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-6 bg-[#111] p-6 rounded-xl border border-[#333]">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Main Details */}
+        <div className="md:col-span-2 space-y-5 bg-white p-6 rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <h3 className="font-semibold text-gray-900 text-base border-b border-gray-100 pb-4">Product Information</h3>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Product Name</label>
-            <input required type="text" className="w-full bg-[#222] border border-[#333] rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none" 
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Product Name *</label>
+            <input required type="text" className={inputClass} placeholder="e.g. Gold Leaf Necklace"
                    value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
-            <textarea rows={4} className="w-full bg-[#222] border border-[#333] rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none" 
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Description</label>
+            <textarea rows={4} className={inputClass} placeholder="Describe the product..."
                    value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Price ($)</label>
-              <input required type="number" step="0.01" className="w-full bg-[#222] border border-[#333] rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none" 
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Price (₹) *</label>
+              <input required type="number" step="0.01" className={inputClass} placeholder="0.00"
                      value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Stock Quantity</label>
-              <input required type="number" className="w-full bg-[#222] border border-[#333] rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none" 
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Stock Qty *</label>
+              <input required type="number" className={inputClass} placeholder="0"
                      value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Category</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Category *</label>
             {loadingCats ? (
-              <div className="w-full bg-[#222] border border-[#333] rounded px-4 py-2 flex items-center gap-2 text-gray-500 text-sm">
+              <div className={`${inputClass} flex items-center gap-2 text-gray-400`}>
                 <Loader2 className="w-4 h-4 animate-spin" /> Loading categories...
               </div>
             ) : (
-              <select 
-                required
-                className="w-full bg-[#222] border border-[#333] rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none appearance-none" 
-                value={formData.category_id} 
-                onChange={e => setFormData({...formData, category_id: e.target.value})}
-              >
+              <select required className={inputClass} value={formData.category_id} onChange={e => setFormData({...formData, category_id: e.target.value})}>
                 <option value="">Select a category</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
+                {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
               </select>
             )}
             {categories.length === 0 && !loadingCats && (
-              <p className="text-xs text-amber-500 mt-2 flex items-center gap-1">
-                <span>⚠️</span> No categories found. <Link href="/admin/categories" className="underline font-bold">Create one.</Link>
+              <p className="text-xs text-amber-600 mt-2">
+                ⚠️ No categories found. <Link href="/admin/categories" className="underline">Create one first.</Link>
               </p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Video URL (Optional)</label>
-            <input type="url" className="w-full bg-[#222] border border-[#333] rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none" 
-                   value={formData.video_url} onChange={e => setFormData({...formData, video_url: e.target.value})} placeholder="https://example.com/video.mp4" />
+            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Video URL (Optional)</label>
+            <input type="url" className={inputClass} placeholder="https://example.com/video.mp4"
+                   value={formData.video_url} onChange={e => setFormData({...formData, video_url: e.target.value})} />
           </div>
           <div className="flex items-center gap-2 pt-2">
             <input 
@@ -211,34 +217,41 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               id="isBestSeller" 
               checked={formData.is_best_seller} 
               onChange={e => setFormData({ ...formData, is_best_seller: e.target.checked })} 
-              className="rounded border-[#333] text-[#D4AF37] focus:ring-[#D4AF37] w-4 h-4 bg-[#222]" 
+              className="rounded border-gray-300 text-gold-600 focus:ring-gold-500 w-4 h-4" 
             />
-            <label htmlFor="isBestSeller" className="text-sm text-gray-400 font-medium cursor-pointer">Mark as Best Seller</label>
+            <label htmlFor="isBestSeller" className="text-sm text-gray-700 font-semibold cursor-pointer">Mark as Best Seller</label>
           </div>
         </div>
 
-        <div className="space-y-6 bg-[#111] p-6 rounded-xl border border-[#333] h-fit">
-          <h3 className="font-medium text-white">Images</h3>
+        {/* Images */}
+        <div className="space-y-5 bg-white p-6 rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-fit">
+          <h3 className="font-semibold text-gray-900 text-base border-b border-gray-100 pb-4">Images <span className="text-gray-400 font-normal">(max 5)</span></h3>
+          <p className="text-xs text-gray-400 leading-relaxed">First image becomes the cover shown in the storefront.</p>
+
           <div className="space-y-3">
             {images.filter(img => !img.toDelete).map((img, i) => {
               const originalIndex = images.indexOf(img);
               return (
-                <div key={originalIndex} className={`flex items-center gap-3 p-2 border rounded ${img.is_cover ? 'border-[#D4AF37] bg-[#D4AF37]/10' : 'border-[#333] bg-[#222]'}`}>
+                <div key={originalIndex} className={`flex items-center gap-3 p-3 rounded-xl border ${img.is_cover ? 'border-gold-300 bg-gold-50/50' : 'border-gray-200'}`}>
                   {img.is_video ? (
-                    <video src={img.url} className="w-16 h-16 object-cover rounded bg-black" />
+                    <video src={img.url} className="w-14 h-14 object-cover rounded-lg shrink-0 bg-black" />
                   ) : (
-                    <img src={img.url} className="w-16 h-16 object-cover rounded" />
+                    <img src={img.url} alt="upload" className="w-14 h-14 object-cover rounded-lg shrink-0" />
                   )}
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0 flex items-center">
                     {img.is_cover ? (
-                       <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-wider">Cover Image</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-gold-700 uppercase tracking-wider">
+                        ★ Cover
+                      </span>
                     ) : (
-                       <button type="button" onClick={() => setAsCover(originalIndex)} className="text-xs text-gray-400 hover:text-white underline">Set as Cover</button>
+                      <button type="button" onClick={() => setAsCover(originalIndex)} className="text-xs text-gray-400 hover:text-gold-600 font-medium transition-colors">
+                        Set as Cover
+                      </button>
                     )}
-                    {img.is_video && <span className="ml-2 text-xs bg-gray-700 text-white px-2 py-0.5 rounded-full">Video</span>}
+                    {img.is_video && <span className="ml-3 text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-medium">Video</span>}
                   </div>
-                  <button type="button" onClick={() => removeImage(originalIndex)} className="text-red-500 hover:text-red-400 p-1">
-                    <X size={16} />
+                  <button type="button" onClick={() => removeImage(originalIndex)} className="text-red-400 hover:text-red-600 p-1 hover:bg-red-50 rounded-lg transition-colors">
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               );
@@ -246,22 +259,18 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           </div>
 
           {images.filter(i => !i.toDelete).length < 5 && (
-            <MediaUpload 
-              bucketName="jewelry_images" 
-              onUploadComplete={handleMediaUpload} 
-              buttonText="Upload Image/Video" 
-              className="mt-4"
-            />
+            <MediaUpload bucketName="jewelry_images" onUploadComplete={handleMediaUpload} buttonText="Upload Image/Video" className="mt-2" />
           )}
         </div>
 
-        <div className="md:col-span-3 flex justify-end">
-          <button 
-            type="submit" 
-            disabled={saving}
-            className={`bg-[#D4AF37] hover:bg-[#c29c30] text-black font-semibold px-8 py-3 rounded text-lg transition-colors ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {saving ? 'Saving...' : 'Save Changes'}
+        {/* Submit */}
+        <div className="md:col-span-3 flex justify-end gap-3">
+          <Link href="/admin/products" className="px-6 py-3 border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors">
+            Cancel
+          </Link>
+          <button type="submit" disabled={saving}
+            className={`bg-gold-600 hover:bg-gold-700 disabled:opacity-60 text-white font-semibold px-8 py-3 rounded-xl text-sm transition-colors shadow-md flex items-center gap-2 ${saving ? 'cursor-not-allowed' : ''}`}>
+            {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : 'Save Changes'}
           </button>
         </div>
       </form>

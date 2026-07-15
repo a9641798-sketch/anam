@@ -6,6 +6,7 @@ import ConditionalFooter from "@/components/ConditionalFooter"
 import WhatsAppChat from "@/components/WhatsAppChat"
 import Navbar from "@/components/Navbar"
 import AnnouncementBar from "@/components/AnnouncementBar"
+import MobileBottomNav from "@/components/MobileBottomNav"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -47,6 +48,7 @@ export default function RootLayout({
         <ConditionalFooter />
         <Toaster />
         <WhatsAppChat />
+        <MobileBottomNav />
       </body>
     </html>
   )

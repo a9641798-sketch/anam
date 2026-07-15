@@ -11,13 +11,13 @@ type SocialLinks = {
   whatsapp: string;
   instagram: string;
   facebook: string;
-  twitter: string;
+  pinterest: string;
 };
 
 export default function SettingsPage() {
   const [codCharge, setCodCharge] = useState<number>(0);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
-    whatsapp: '', instagram: '', facebook: '', twitter: ''
+    whatsapp: '', instagram: '', facebook: '', pinterest: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -167,13 +167,13 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Twitter URL</label>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Pinterest URL</label>
                 <input
                   type="text"
-                  value={socialLinks.twitter}
-                  onChange={(e) => setSocialLinks({...socialLinks, twitter: e.target.value})}
+                  value={socialLinks.pinterest}
+                  onChange={(e) => setSocialLinks({...socialLinks, pinterest: e.target.value})}
                   className="w-full px-4 py-4 bg-[#FCFBF8] border border-gray-100 rounded-2xl focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 outline-none transition-all text-sm font-medium"
-                  placeholder="https://twitter.com/yourhandle"
+                  placeholder="https://pinterest.com/yourhandle"
                 />
               </div>
             </div>

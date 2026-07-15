@@ -26,7 +26,7 @@ const INSTAGRAM_POSTS = [
 ];
 
 const CATEGORY_IMAGES = [
-  "https://images.unsplash.com/photo-1599643477874-ed3ba3cb9ce8?w=800&q=80",
+  "https://images.unsplash.com/photo-1599643478514-4a4204df6111?w=800&q=80",
   "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80",
   "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80",
   "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80"

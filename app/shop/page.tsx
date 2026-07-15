@@ -27,6 +27,15 @@ export default function ShopPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartLoaded, setCartLoaded] = useState(false);
 
+  // Parse initial search query from URL safely on the client
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const q = urlParams.get('search');
+    if (q) {
+      setSearch(q);
+    }
+  }, []);
+
   // Load cart from localStorage
   useEffect(() => {
     try {
