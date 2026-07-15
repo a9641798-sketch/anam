@@ -27,11 +27,11 @@ export default function AnnouncementBar() {
   if (loading || messages.length === 0) return null;
 
   return (
-    <div className="bg-[#8B0000] text-white overflow-hidden py-2 relative z-[60]">
-      <div className="flex whitespace-nowrap animate-marquee">
-        {/* We render the text multiple times to ensure continuous smooth scrolling if it's short */}
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex gap-8 px-4 items-center">
+    <div className="bg-[#8B0000] text-white overflow-hidden py-2 relative z-[60] flex w-full">
+      <div className="flex animate-marquee whitespace-nowrap min-w-max items-center">
+        {/* We render the text multiple times to ensure continuous smooth scrolling */}
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="flex gap-12 px-6 items-center shrink-0">
             {messages.map((msg, j) => (
               <span key={`${i}-${j}`} className="text-xs md:text-sm font-semibold tracking-wider uppercase">
                 {msg}
@@ -40,15 +40,6 @@ export default function AnnouncementBar() {
           </div>
         ))}
       </div>
-      <style jsx>{`
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-33.33%); }
-        }
-      `}</style>
     </div>
   );
 }
